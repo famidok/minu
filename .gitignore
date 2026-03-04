@@ -4,5 +4,5 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# Binary
-my_app
+# Build
+build/
