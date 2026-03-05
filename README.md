@@ -13,5 +13,5 @@ Can't create a file!
 ```
 Try
 ```
-sudo minicom
+sudo minu
 ```
