@@ -9,7 +9,7 @@ void create_day_schema(ofstream& day_file, const string& date)
 {
     day_file << "DAILY TRACKER" << " - " << date << endl;
     day_file << "#---------------------------------------------------------#" << endl;
-    day_file << "Day Score: /10                  |          Goal Rate: /10" << endl;
+    day_file << "Day Score: /10                  |         Goal Rate: /10" << endl;
     day_file << "#---------------------------------------------------------#" << endl;
     day_file << "Targets:" << endl;
     day_file << "[  ]:" << endl;
@@ -77,18 +77,62 @@ void create_day()
     }
 }
 
+void edit_day(string_view day)
+{
+    string editor_input;
+    string command;
+    string path;
+
+    if (!day.empty()) {
+        path = "/opt/minu/days/" + string(day);
+
+        ifstream f(path);
+        if (!f.good()) {
+            cout << "File does not exist => " << path << endl;
+            return;
+        }
+    } else {
+        time_t raw_time;
+        time(&raw_time);
+        const tm* time_info = localtime(&raw_time);
+        const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-" + to_string(time_info->tm_year + 1900);
+        path = "/opt/minu/days/0" + date;
+    }
+
+    cout << "\nSelect your default editor...\n" << endl;
+    cout << "Options:\n1-) Nano\n2-) Vim" << endl;
+    cout << "[ Default editor is nano ]\n" << endl;
+    cout << "Choice: ";
+    getline(cin, editor_input);
+
+    if (editor_input.empty() || editor_input == "1") {
+        command = "nano " + path;
+        system(command.c_str());
+        cout << "Edited successfully! w/nano" << endl;
+    } else if (editor_input == "2") {
+        command = "vim " + path;
+        system(command.c_str());
+        cout << "Edited successfully! w/vim" << endl;
+    }
+}
+
 void help()
 {
     cout << "Usage: minu [options]" << endl;
     cout << "Options:" << endl;
-    cout << "\t--create_day\t\tCreates today's schema" << endl;
+    cout << "\t--create_day\t\t\tCreates today's schema" << endl;
+    cout << "\t--edit_day <dd/mm/yy>\t\tEdits today's/exact day schema" << endl;
 }
 
 int main(int argc, char *argv[])
 {
     map<string_view, function<void()>> commands = {
         {"--create_day", create_day},
-        {"--help", help}
+        {"--help", help},
+        {"--edit_day", [&]() {
+                const string_view day = (argc > 2) ? argv[2] : "";
+                edit_day(day);
+        }}
     };
 
     if (argc == 1) {
@@ -98,7 +142,7 @@ int main(int argc, char *argv[])
         if (commands.find(arg) != commands.end()) {
             commands.at(arg)();
         } else {
-            cout << "Unknown Command!" << arg << endl;
+            cout << "Unknown Command => " << arg << "\n" << endl;
             help();
         }
     }
