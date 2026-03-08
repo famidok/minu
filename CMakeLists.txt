@@ -8,8 +8,6 @@ add_executable (minu minu.cpp)
 
 if(NOT WIN32)
 	install(CODE "execute_process(COMMAND mkdir -p /opt/minu/days)")
-	install(CODE "execute_process(COMMAND chown -R $ENV{USER}:$ENV{USER} /opt/minu)")
-    install(CODE "execute_process(COMMAND chmod -R 755 /opt/minu)")
 endif()
 
 install(TARGETS minu
