@@ -120,7 +120,6 @@ If you encounter the following message:
 
 ```text
 Can't create a file!
-
 ```
 
 Ensure you have the necessary permissions for the `/opt/minu` directory. You can run the command with `sudo` or change the directory ownership:
