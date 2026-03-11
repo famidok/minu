@@ -1,7 +1,9 @@
+#include <complex>
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <string>
+#include <regex>
 
 using namespace std;
 
@@ -64,7 +66,14 @@ void create_day()
 
     const tm* time_info = localtime(&raw_time);
     const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-" + to_string(time_info->tm_year + 1900);
-    const string path = "/opt/minu/days/0" + date;
+    string path;
+    
+    if (time_info->tm_mday < 10) {
+        path = "/opt/minu/days/0" + date;
+    } else {
+        path = "/opt/minu/days/" + date;
+    }
+
     ofstream day_file(path);
 
     if (day_file.is_open()) {
@@ -77,26 +86,37 @@ void create_day()
     }
 }
 
-void edit_day(string_view day)
+void edit_day(string_view day = "")
 {
     string editor_input;
     string command;
     string path;
+    time_t raw_time;
+    time(&raw_time);
+    const tm* time_info = localtime(&raw_time);
 
-    if (!day.empty()) {
-        path = "/opt/minu/days/" + string(day);
-
-        ifstream f(path);
-        if (!f.good()) {
-            cout << "File does not exist => " << path << endl;
-            return;
-        }
-    } else {
-        time_t raw_time;
-        time(&raw_time);
-        const tm* time_info = localtime(&raw_time);
-        const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-" + to_string(time_info->tm_year + 1900);
+    if (day == "yesterday") {
+        const string date = to_string((time_info->tm_mday - 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
+        + to_string(time_info->tm_year + 1900);
         path = "/opt/minu/days/0" + date;
+    } else if (day == "tomorrow") {
+        const string date = to_string((time_info->tm_mday + 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
+        + to_string(time_info->tm_year + 1900);
+        path = "/opt/minu/days/0" + date;
+    } else {
+        const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-"
+        + to_string(time_info->tm_year + 1900);
+        path = "/opt/minu/days/0" + date;
+    }
+
+    ifstream f(path);
+
+    if (!f.good()) {
+        if (day == "tomorrow") {
+            cout << "Create next day!" << endl;
+        }
+        cout << "File does not exist => " << path << endl;
+        return;
     }
 
     cout << "\nSelect your default editor...\n" << endl;
@@ -113,6 +133,8 @@ void edit_day(string_view day)
         command = "vim " + path;
         system(command.c_str());
         cout << "Edited successfully! w/vim" << endl;
+    } else {
+        cout << "Invalid input!" << endl;
     }
 }
 
@@ -126,13 +148,23 @@ void help()
 
 int main(int argc, char *argv[])
 {
+    const regex date_pattern(R"(\d{2}[/-]\d{2}[/-]\d{4})");
     map<string_view, function<void()>> commands = {
         {"--create_day", create_day},
         {"--help", help},
         {"--edit_day", [&]() {
-                const string_view day = (argc > 2) ? argv[2] : "";
-                edit_day(day);
-        }}
+                if (argc > 2) {
+                    const string_view arg = argv[2];
+                    if (arg == "yesterday" || arg == "tomorrow" || regex_match(arg.begin(), arg.end(),
+                        date_pattern)) {
+                        edit_day(arg);
+                    } else {
+                        cout << "Unknown Argument => " << arg << "\n" << endl;
+                    }
+                } else {
+                    edit_day();
+                }
+        }},
     };
 
     if (argc == 1) {
