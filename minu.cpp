@@ -65,9 +65,10 @@ void create_day()
     time(&raw_time);
 
     const tm* time_info = localtime(&raw_time);
-    const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-" + to_string(time_info->tm_year + 1900);
+    const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-"
+    + to_string(time_info->tm_year + 1900);
     string path;
-    
+
     if (time_info->tm_mday < 10) {
         path = "/opt/minu/days/0" + date;
     } else {
@@ -98,15 +99,31 @@ void edit_day(string_view day = "")
     if (day == "yesterday") {
         const string date = to_string((time_info->tm_mday - 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
         + to_string(time_info->tm_year + 1900);
-        path = "/opt/minu/days/0" + date;
+
+        if (time_info->tm_mday < 10) {
+            path = "/opt/minu/days/0" + date;
+        } else {
+            path = "/opt/minu/days/" + date;
+        }
+
     } else if (day == "tomorrow") {
         const string date = to_string((time_info->tm_mday + 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
         + to_string(time_info->tm_year + 1900);
-        path = "/opt/minu/days/0" + date;
+
+        if (time_info->tm_mday < 10) {
+            path = "/opt/minu/days/0" + date;
+        } else {
+            path = "/opt/minu/days/" + date;
+        }
     } else {
         const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-"
         + to_string(time_info->tm_year + 1900);
-        path = "/opt/minu/days/0" + date;
+
+        if (time_info->tm_mday < 10) {
+            path = "/opt/minu/days/0" + date;
+        } else {
+            path = "/opt/minu/days/" + date;
+        }
     }
 
     ifstream f(path);
