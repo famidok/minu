@@ -1,11 +1,22 @@
 #include <complex>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <map>
 #include <string>
 #include <regex>
 
 using namespace std;
+
+string get_day(int offset = 0) {
+    time_t t = time(nullptr);
+    t += offset * 24 * 60 * 60;
+
+    tm* timeinfo = localtime(&t);
+    stringstream ss;
+    ss << put_time(timeinfo, "%d-%m-%Y");
+    return ss.str();
+}
 
 void create_day_schema(ofstream& day_file, const string& date)
 {
@@ -61,75 +72,42 @@ void create_day_schema(ofstream& day_file, const string& date)
 
 void create_day()
 {
-    time_t raw_time;
-    time(&raw_time);
-
-    const tm* time_info = localtime(&raw_time);
-    const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-"
-    + to_string(time_info->tm_year + 1900);
-    string path;
-
-    if (time_info->tm_mday < 10) {
-        path = "/opt/minu/days/0" + date;
-    } else {
-        path = "/opt/minu/days/" + date;
-    }
+    const string day_date = get_day(0);
+    const string path = "/opt/minu/days/" + day_date;
 
     ofstream day_file(path);
 
     if (day_file.is_open()) {
         cout << "File created successfully!" << endl;
         cout << "File path: " << path << endl;
-        create_day_schema(day_file, date);
+        create_day_schema(day_file, day_date);
         day_file.close();
     } else {
         cout << "Can't create file!" << endl;
     }
 }
 
-void edit_day(string_view day = "")
+void edit_day(string_view day_arg = "")
 {
     string editor_input;
     string command;
     string path;
-    time_t raw_time;
-    time(&raw_time);
-    const tm* time_info = localtime(&raw_time);
 
-    if (day == "yesterday") {
-        const string date = to_string((time_info->tm_mday - 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
-        + to_string(time_info->tm_year + 1900);
-
-        if (time_info->tm_mday < 10) {
-            path = "/opt/minu/days/0" + date;
-        } else {
-            path = "/opt/minu/days/" + date;
-        }
-
-    } else if (day == "tomorrow") {
-        const string date = to_string((time_info->tm_mday + 1)) + "-0" + to_string(time_info->tm_mon + 1) + "-"
-        + to_string(time_info->tm_year + 1900);
-
-        if (time_info->tm_mday < 10) {
-            path = "/opt/minu/days/0" + date;
-        } else {
-            path = "/opt/minu/days/" + date;
-        }
+    if (day_arg == "yesterday") {
+        const string day_date = get_day(-1);
+        path = "/opt/minu/days/" + day_date;
+    } else if (day_arg == "tomorrow") {
+        const string day_date = get_day(1);
+        path = "/opt/minu/days/" + day_date;
     } else {
-        const string date = to_string(time_info->tm_mday) + "-0" + to_string(time_info->tm_mon + 1) + "-"
-        + to_string(time_info->tm_year + 1900);
-
-        if (time_info->tm_mday < 10) {
-            path = "/opt/minu/days/0" + date;
-        } else {
-            path = "/opt/minu/days/" + date;
-        }
+        const string day_date = get_day(0);
+        path = "/opt/minu/days/" + day_date;
     }
 
     ifstream f(path);
 
     if (!f.good()) {
-        if (day == "tomorrow") {
+        if (day_arg == "tomorrow") {
             cout << "Create next day!" << endl;
         }
         cout << "File does not exist => " << path << endl;
