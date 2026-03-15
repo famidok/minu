@@ -87,11 +87,12 @@ void create_day()
     }
 }
 
-void edit_day(string_view day_arg = "")
+void edit_day(string day_arg = "")
 {
     string editor_input;
     string command;
     string path;
+    const regex date_pattern(R"(\d{2}[/-]\d{2}[/-]\d{4})");
 
     if (day_arg == "yesterday") {
         const string day_date = get_day(-1);
@@ -99,6 +100,8 @@ void edit_day(string_view day_arg = "")
     } else if (day_arg == "tomorrow") {
         const string day_date = get_day(1);
         path = "/opt/minu/days/" + day_date;
+    } else if (regex_match(day_arg, date_pattern)) {
+        path = "/opt/minu/days/" + day_arg;
     } else {
         const string day_date = get_day(0);
         path = "/opt/minu/days/" + day_date;
@@ -149,9 +152,8 @@ int main(int argc, char *argv[])
         {"--help", help},
         {"--edit_day", [&]() {
                 if (argc > 2) {
-                    const string_view arg = argv[2];
-                    if (arg == "yesterday" || arg == "tomorrow" || regex_match(arg.begin(), arg.end(),
-                        date_pattern)) {
+                    const string arg = argv[2];
+                    if (arg == "yesterday" || arg == "tomorrow" || regex_match(arg, date_pattern)) {
                         edit_day(arg);
                     } else {
                         cout << "Unknown Argument => " << arg << "\n" << endl;
