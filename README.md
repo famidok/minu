@@ -23,9 +23,21 @@ Generates a new daily tracking file based on a pre-defined schema in `/opt/minu/
 
 ```bash
 sudo minu --create_day
-
 ```
 
+When creating a new day with minu --create_day, the system will ask if you want to import tasks from yesterday.
+
+Minu scans your previous entry in two ways:
+```bash
+Targets:
+[ T ]: This will be imported tomorrow!
+[ + ]: This is finished and won't be imported.
+
+...
+
+Tomorrow's Agenda:
+- This will also be imported!
+```
 ### Edit an Entry
 
 Opens the daily tracker in your preferred editor (**Nano** or **Vim**).
@@ -61,23 +73,23 @@ DAILY TRACKER - 09-03-2026
 Day Score: 7/10                  |         Goal Rate: 8/10
 #---------------------------------------------------------#
 Targets:
-[X]: Complete documentation for the eBPF program.
-[X]: Buy groceries for the week
-[ ]: Finish the second chapter of the book
+[ + ]: Complete documentation for the eBPF program.
+[ + ]: Buy groceries for the week
+[ T ]: Finish the second chapter of the book
 #---------------------------------------------------------#
 Engineering
-[X] Work: +120 -30
+[ + ] Work: +120 -30
 Notes:
      -> Implemented XDP_DROP for blacklisted IPs in the ingress hook.
      -> Refactored the BPF map lookups to reduce instruction count.
-[X] Personal: +15 -2
+[ + ] Personal: +15 -2
 Notes:
      -> Refactored the CLI argument parser.
      -> Fixed a linker error in the X module
 #---------------------------------------------------------#
 Knowledge & Reading
-[X] Classic: "Nutuk" (Page 50-70)
-[X] Technical: "Learning eBPF" (Chapter 4. The bpf() System Call)
+[ + ] Classic: "Nutuk" (Page 50-70)
+[ + ] Technical: "Learning eBPF" (Chapter 4. The bpf() System Call)
 #---------------------------------------------------------#
 Idea & Backlog
 Idea:
@@ -87,19 +99,19 @@ Project:
 #---------------------------------------------------------#
 Training & Health
 #---------------------------------------------------------#
-[X] Steps: 10,000           | [X] Exercises: 30 min Run
-[X] Fast-Food [ ] Smoke [X] Junk Food
+[ + ] Steps: 10,000           | [ + ] Exercises: 30 min Run
+[ + ] Fast-Food [ - ] Smoke [ + ] Junk Food
 #---------------------------------------------------------#
 Language Lab
-[X] English (Count: 3)
+[ + ] English (Count: 3)
      - Idempotency, Determinism, Reentrancy
-[X] Japanese (Count: 5)
+[ + ] Japanese (Count: 5)
      - Kuruma (Car), Gakkou (School), Mizu (Water), Hon (Book), Neko (Cat)
 #---------------------------------------------------------#
 Finance
-[X] Ticket (Total: 15.50)
+[ + ] Ticket (Total: 15.50)
      - Lunch at the bistro.
-[X] Credit Card (Total: 50.00)
+[ + ] Credit Card (Total: 50.00)
      - Bought a new mechanical keyboard switch set.
 #---------------------------------------------------------#
 Tomorrow's Agenda:
