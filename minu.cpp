@@ -18,14 +18,67 @@ string get_day(int offset = 0) {
     return ss.str();
 }
 
-void create_day_schema(ofstream& day_file, const string& date)
+vector<string> get_tomorrow_agenda(vector<string>& agenda_list) {
+    const string day_date = get_day(-1);
+    const string path = "/opt/minu/days/" + day_date;
+    const string tomorrow_agenda = "Tomorrow's Agenda:";
+    const string end = "#---------------------------------------------------------#";
+    bool found_agenda = false;
+    bool found_targeTs = false;
+    bool finished = false;
+    string line;
+
+    ifstream file(path);
+
+    if (file.is_open()) {
+        while (getline(file, line) && !finished) {
+
+            if (!line.empty() && line.starts_with("[ T ]")) {
+                string formatted_line = "[  ] " + line.substr(7);
+                agenda_list.push_back(formatted_line);
+                continue;
+            }
+
+            if (!found_agenda) {
+                if (line.find(tomorrow_agenda) != string::npos) {
+                    found_agenda = true;
+                }
+                continue;
+            }
+
+            if (!line.empty() && line.starts_with("-") && line.length() > 2) {
+                string formatted_line = "[  ] " + line.substr(2);
+                agenda_list.push_back(formatted_line);
+            }
+
+            if (line.find(end) != string::npos) {
+                finished = true;
+            }
+        }
+    } else {
+        cerr << "Error opening file: " << path << endl;
+    }
+
+    file.close();
+    return agenda_list;
+}
+
+void create_day_schema(ofstream& day_file, const string& date, const vector<string>& agenda_list)
 {
     day_file << "DAILY TRACKER" << " - " << date << endl;
     day_file << "#---------------------------------------------------------#" << endl;
     day_file << "Day Score: /10                  |         Goal Rate: /10" << endl;
     day_file << "#---------------------------------------------------------#" << endl;
     day_file << "Targets:" << endl;
-    day_file << "[  ]:" << endl;
+
+    if (!agenda_list.empty()) {
+        for (const string& item : agenda_list) {
+            day_file << item << endl;
+        }
+    } else {
+        day_file << "[  ]:" << endl;
+    }
+
     day_file << "#---------------------------------------------------------#" << endl;
     day_file << "Engineering" << endl;
     day_file << "[  ] Work: +0 -0" << endl;
@@ -72,6 +125,26 @@ void create_day_schema(ofstream& day_file, const string& date)
 
 void create_day()
 {
+    string import, input;
+    bool valid = false;
+    vector<string> agenda_list;
+
+    while (!valid) {
+        cout << "Import yesterday's 'Tomorrow's Agenda'? [Y/n]: ";
+        getline(cin, input);
+
+        if (input.empty() || input[0] == 'y' || input[0] == 'Y') {
+            cout << ">> Importing items..." << endl;
+            get_tomorrow_agenda(agenda_list);
+            valid = true;
+        } else if (input[0] == 'n' || input[0] == 'N') {
+            cout << ">> Skipped. Starting with a fresh agenda." << endl;
+            valid = true;
+        } else {
+            cout << "Invalid input! Please press 'y' for Yes or 'n' for No." << endl;
+        }
+    }
+
     const string day_date = get_day(0);
     const string path = "/opt/minu/days/" + day_date;
 
@@ -80,7 +153,7 @@ void create_day()
     if (day_file.is_open()) {
         cout << "File created successfully!" << endl;
         cout << "File path: " << path << endl;
-        create_day_schema(day_file, day_date);
+        create_day_schema(day_file, day_date, agenda_list);
         day_file.close();
     } else {
         cout << "Can't create file!" << endl;
