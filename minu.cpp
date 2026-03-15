@@ -114,6 +114,8 @@ void create_day_schema(ofstream& day_file, const string& date, const vector<stri
     day_file << "     -" << endl;
     day_file << "[  ] Credit Card (Total: )" << endl;
     day_file << "     -" << endl;
+    day_file << "[  ] Cash (Total: )" << endl;
+    day_file << "     -" << endl;
     day_file << "#---------------------------------------------------------#" << endl;
     day_file << "Tomorrow's Agenda:" << endl;
     day_file << "-" << endl;
