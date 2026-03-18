@@ -34,7 +34,7 @@ vector<string> get_tomorrow_agenda(vector<string>& agenda_list) {
         while (getline(file, line) && !finished) {
 
             if (!line.empty() && line.starts_with("[ T ]")) {
-                string formatted_line = "[  ] " + line.substr(7);
+                string formatted_line = "[  ]: " + line.substr(7);
                 agenda_list.push_back(formatted_line);
                 continue;
             }
@@ -47,7 +47,7 @@ vector<string> get_tomorrow_agenda(vector<string>& agenda_list) {
             }
 
             if (!line.empty() && line.starts_with("-") && line.length() > 2) {
-                string formatted_line = "[  ] " + line.substr(2);
+                string formatted_line = "[  ]: " + line.substr(2);
                 agenda_list.push_back(formatted_line);
             }
 
@@ -125,9 +125,9 @@ void create_day_schema(ofstream& day_file, const string& date, const vector<stri
     day_file << "#---------------------------------------------------------#" << endl;
 }
 
-void create_day()
+void create_day(string day = "")
 {
-    string import, input;
+    string import, input, path;
     bool valid = false;
     vector<string> agenda_list;
 
@@ -148,7 +148,12 @@ void create_day()
     }
 
     const string day_date = get_day(0);
-    const string path = "/opt/minu/days/" + day_date;
+
+    if (!day.empty()) {
+        path = "/opt/minu/days/" + day;
+    } else {
+        path = "/opt/minu/days/" + day_date;
+    }
 
     ofstream day_file(path);
 
@@ -223,7 +228,18 @@ int main(int argc, char *argv[])
 {
     const regex date_pattern(R"(\d{2}[/-]\d{2}[/-]\d{4})");
     map<string_view, function<void()>> commands = {
-        {"--create_day", create_day},
+        {"--create_day", [&]() {
+                if (argc > 2) {
+                    const string arg = argv[2];
+                    if (regex_match(arg, date_pattern)) {
+                        create_day(arg);
+                    } else {
+                        cout << "Unknown Argument => " << arg << "\n" << endl;
+                    }
+                } else {
+                    create_day();
+                }
+        }},
         {"--help", help},
         {"--edit_day", [&]() {
                 if (argc > 2) {
