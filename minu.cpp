@@ -5,9 +5,11 @@
 #include <map>
 #include <string>
 #include <regex>
-#include <cstdlib>
+#include <filesystem>
 
 using namespace std;
+
+enum class ParseState { SEARCHING, IN_BACKLOG, IN_IDEA, IN_PROJECT };
 
 string get_path() {
     const char* home_dir = getenv("HOME");
@@ -15,6 +17,103 @@ string get_path() {
         return "";
     }
     return string(home_dir) + "/.local/minu/days/";
+}
+
+void fetch_backlog() {
+    const string days_path = get_path();
+    bool found_day = false;
+    vector<string> days;
+    ofstream backlog_file;
+
+    if (!filesystem::exists(days_path) || !filesystem::is_directory(days_path)) {
+        std::cerr << "Error opening directory: " << days_path << std::endl;
+        return;
+    }
+
+    try {
+        for (const auto & entry : filesystem::directory_iterator(days_path)) {
+            days.push_back(entry.path().string());
+            found_day = true;
+        }
+
+        if (!found_day) {
+            cout << "No backlog files founded!" << endl;
+        } else {
+            const string path = get_path() + "backlogs";
+            backlog_file.open(path);
+            if (!backlog_file.is_open()) {
+                cerr << "Error: Could not create backlogs file!" << endl;
+                return;
+            }
+            backlog_file << "#================ Your compiled backlogs ================#" << endl;
+            backlog_file << endl;
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        cout << "Filesystem error: " << e.what() << endl;
+    }
+
+    for (auto day : days) {
+
+        ifstream file(day);
+
+        if (file.is_open()) {
+            ParseState state = ParseState::SEARCHING;
+            string end_marker = "#---------------------------------------------------------#";
+            string line;
+            bool header_printed = false;
+            while (getline(file, line)) {
+                if (line == "Idea & Backlog") {
+                    state = ParseState::IN_BACKLOG;
+                    continue;
+                }
+                if (line == "Idea:") {
+                    state = ParseState::IN_IDEA;
+                    continue;
+                }
+                if (line == "Project:") {
+                    state = ParseState::IN_PROJECT;
+                    continue;
+                }
+
+                if (line.find(end_marker) != string::npos) {
+                    state = ParseState::SEARCHING;
+                    continue;
+                }
+
+                if (line.starts_with("     ->") && line.length() > 7) {
+
+                    switch (state) {
+                        case ParseState::IN_IDEA:
+                            if (!header_printed) {
+                                backlog_file << "--- Date: " << day.substr(32) << " ---" << endl;
+                                header_printed = true;
+                            }
+                            backlog_file << "[IDEA] " << line.substr(7) << endl;
+                            break;
+                        case ParseState::IN_PROJECT:
+                            if (!header_printed) {
+                                backlog_file << "--- Date: " << day.substr(32) << " ---" << endl;
+                                header_printed = true;
+                            }
+                            backlog_file << "[PROJ] " << line.substr(7) << endl;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (header_printed) {
+                backlog_file << endl;
+            }
+        } else {
+            cerr << "Error opening file: " << day << endl;
+            cout << ">> Can't find backlog file, skipped." << endl;
+        }
+
+        file.close();
+    }
+
+    backlog_file.close();
 }
 
 string get_day(int offset = 0) {
@@ -244,6 +343,7 @@ void help()
     cout << "Options:" << endl;
     cout << "\t--create_day\t\t\tCreates today's schema" << endl;
     cout << "\t--edit_day <dd/mm/yy>\t\tEdits today's/exact day schema" << endl;
+    fetch_backlog();
 }
 
 int main(int argc, char *argv[])

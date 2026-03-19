@@ -48,8 +48,17 @@ sudo minu --edit_day
 
 # Edit a specific date
 sudo minu --edit_day <dd-mm-yyyy>
-
 ```
+
+### Fetch Idea & Backlog
+
+**Note:**  Each entry must be contained within a single line; do not use line breaks or multi-line formatting.
+
+```bash
+# To fetch
+sudo minu --fetch_backlog
+```
+Compiles your ideas and projects into a centralized backlog file.
 
 ## Schema Overview
 
@@ -123,7 +132,6 @@ Notes:
 - XDP performance is looking good, but need to test with 10Gbps traffic.
 - Need to cut down on junk food.
 #---------------------------------------------------------#
-
 ```
 
 ## Troubleshooting
@@ -138,5 +146,4 @@ Ensure you have the necessary permissions for the `/opt/minu` directory. You can
 
 ```bash
 sudo chown -R $USER /opt/minu
-
 ```
