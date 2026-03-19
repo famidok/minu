@@ -5,8 +5,17 @@
 #include <map>
 #include <string>
 #include <regex>
+#include <cstdlib>
 
 using namespace std;
+
+string get_path() {
+    const char* home_dir = getenv("HOME");
+    if (home_dir == nullptr) {
+        return "";
+    }
+    return string(home_dir) + "/.local/minu/days/";
+}
 
 string get_day(int offset = 0) {
     time_t t = time(nullptr);
@@ -34,11 +43,11 @@ vector<string> get_tomorrow_agenda(vector<string>& agenda_list, const string& da
         char buffer[11];
         snprintf(buffer, sizeof(buffer), "%02d-%02d-%04d", d, m, y);
         day_date = buffer;
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
 
     } else {
         day_date = get_day(-1);
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
     }
 
     ifstream file(path);
@@ -147,9 +156,9 @@ void create_day(string day = "")
     const string day_date = get_day(0);
 
     if (!day.empty()) {
-        path = "/opt/minu/days/" + day;
+        path = get_path() + day;
     } else {
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
     }
 
     while (!valid) {
@@ -189,15 +198,15 @@ void edit_day(string day_arg = "")
 
     if (day_arg == "yesterday") {
         const string day_date = get_day(-1);
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
     } else if (day_arg == "tomorrow") {
         const string day_date = get_day(1);
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
     } else if (regex_match(day_arg, date_pattern)) {
-        path = "/opt/minu/days/" + day_arg;
+        path = get_path() + day_arg;
     } else {
         const string day_date = get_day(0);
-        path = "/opt/minu/days/" + day_date;
+        path = get_path() + day_date;
     }
 
     ifstream f(path);

@@ -9,7 +9,7 @@ include_directories(.)
 add_executable (minu minu.cpp)
 
 if(NOT WIN32)
-	install(CODE "execute_process(COMMAND mkdir -p /opt/minu/days)")
+	install(CODE "execute_process(COMMAND mkdir -p ~/.local/minu/day)")
 endif()
 
 install(TARGETS minu
