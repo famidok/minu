@@ -18,15 +18,28 @@ string get_day(int offset = 0) {
     return ss.str();
 }
 
-vector<string> get_tomorrow_agenda(vector<string>& agenda_list) {
-    const string day_date = get_day(-1);
-    const string path = "/opt/minu/days/" + day_date;
+vector<string> get_tomorrow_agenda(vector<string>& agenda_list, const string& day) {
+    string day_date;
+    string path;
     const string tomorrow_agenda = "Tomorrow's Agenda:";
     const string end = "#---------------------------------------------------------#";
     bool found_agenda = false;
-    bool found_targeTs = false;
     bool finished = false;
     string line;
+
+    if (!day.empty()) {
+        int d, m, y;
+        sscanf(day.c_str(), "%d-%d-%d", &d, &m, &y);
+        d = d - 1;
+        char buffer[11];
+        snprintf(buffer, sizeof(buffer), "%02d-%02d-%04d", d, m, y);
+        day_date = buffer;
+        path = "/opt/minu/days/" + day_date;
+
+    } else {
+        day_date = get_day(-1);
+        path = "/opt/minu/days/" + day_date;
+    }
 
     ifstream file(path);
 
@@ -57,6 +70,7 @@ vector<string> get_tomorrow_agenda(vector<string>& agenda_list) {
         }
     } else {
         cerr << "Error opening file: " << path << endl;
+        cout << ">> Can't find yesterday file, skipped. Starting with a fresh agenda." << endl;
     }
 
     file.close();
@@ -130,6 +144,13 @@ void create_day(string day = "")
     string import, input, path;
     bool valid = false;
     vector<string> agenda_list;
+    const string day_date = get_day(0);
+
+    if (!day.empty()) {
+        path = "/opt/minu/days/" + day;
+    } else {
+        path = "/opt/minu/days/" + day_date;
+    }
 
     while (!valid) {
         cout << "Import yesterday's 'Tomorrow's Agenda'? [Y/n]: ";
@@ -137,7 +158,7 @@ void create_day(string day = "")
 
         if (input.empty() || input[0] == 'y' || input[0] == 'Y') {
             cout << ">> Importing items..." << endl;
-            get_tomorrow_agenda(agenda_list);
+            get_tomorrow_agenda(agenda_list, day);
             valid = true;
         } else if (input[0] == 'n' || input[0] == 'N') {
             cout << ">> Skipped. Starting with a fresh agenda." << endl;
@@ -145,14 +166,6 @@ void create_day(string day = "")
         } else {
             cout << "Invalid input! Please press 'y' for Yes or 'n' for No." << endl;
         }
-    }
-
-    const string day_date = get_day(0);
-
-    if (!day.empty()) {
-        path = "/opt/minu/days/" + day;
-    } else {
-        path = "/opt/minu/days/" + day_date;
     }
 
     ofstream day_file(path);
