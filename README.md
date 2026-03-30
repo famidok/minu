@@ -25,6 +25,22 @@ Generates a new daily tracking file based on a pre-defined schema in `/opt/minu/
 sudo minu --create_day
 ```
 
+### List Day Entries
+
+To list all day entries,
+
+```bash
+minu --list_days
+```
+
+#### Example Output
+
+```bash
+$ sudo minu --list_days                                               
+08-03-2026      10-03-2026      12-03-2026      14-03-2026      16-03-2026      18-03-2026      23-03-2026      25-03-2026      29-11-2021
+09-03-2026      11-03-2026      13-03-2026      15-03-2026      17-03-2026      19-03-2026      24-03-2026      26-03-2026      backlogs
+```
+
 When creating a new day with minu --create_day, the system will ask if you want to import tasks from yesterday.
 
 Minu scans your previous entry in two ways:

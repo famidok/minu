@@ -19,6 +19,11 @@ string get_path() {
     return string(home_dir) + "/.local/minu/days/";
 }
 
+void list_days() {
+    const string command = "ls " + get_path();
+    system(command.c_str());
+}
+
 void fetch_backlog() {
     const string days_path = get_path();
     bool found_day = false;
@@ -375,6 +380,7 @@ int main(int argc, char *argv[])
                     edit_day();
                 }
         }},
+        {"--list_days", list_days},
     };
 
     if (argc == 1) {
