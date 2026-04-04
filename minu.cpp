@@ -286,7 +286,11 @@ void create_day(string day = "")
     if (day_file.is_open()) {
         cout << "File created successfully!" << endl;
         cout << "File path: " << path << endl;
-        create_day_schema(day_file, day_date, agenda_list);
+        if (!day.empty()) {
+            create_day_schema(day_file, day, agenda_list);
+        } else {
+            create_day_schema(day_file, day_date, agenda_list);
+        }
         day_file.close();
     } else {
         cout << "Can't create file!" << endl;
